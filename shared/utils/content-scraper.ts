@@ -242,9 +242,15 @@ export class ContentScraper {
    * 提取域名
    */
   private extractDomain(url: string): string {
+    if (!url || typeof url !== 'string') {
+      return '';
+    }
+    
     try {
-      return new URL(url).hostname;
-    } catch {
+      const urlObj = new URL(url);
+      return urlObj.hostname || '';
+    } catch (error) {
+      console.warn('Error extracting domain from URL:', url, error);
       return '';
     }
   }
