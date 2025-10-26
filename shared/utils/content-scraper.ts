@@ -259,7 +259,16 @@ export class ContentScraper {
    * 使用Cheerio解析HTML内容
    */
   static parseWithCheerio(html: string): cheerio.CheerioAPI {
-    return cheerio.load(html);
+    if (!html || typeof html !== 'string') {
+      throw new Error('HTML content must be a non-empty string');
+    }
+    
+    try {
+      return cheerio.load(html);
+    } catch (error) {
+      console.error('Error parsing HTML with Cheerio:', error);
+      throw error;
+    }
   }
 
   /**
