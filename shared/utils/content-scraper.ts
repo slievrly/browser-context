@@ -11,8 +11,32 @@ export class ContentScraper {
   private delayBetweenPages: number = 1000;
 
   constructor(maxContentLength: number = 10000, delayBetweenPages: number = 1000) {
-    this.maxContentLength = maxContentLength;
-    this.delayBetweenPages = delayBetweenPages;
+    this.setMaxContentLength(maxContentLength);
+    this.setDelayBetweenPages(delayBetweenPages);
+  }
+  
+  /**
+   * 验证最大内容长度
+   */
+  private validateMaxContentLength(length: number): void {
+    if (length < 0) {
+      throw new Error('Max content length must be non-negative');
+    }
+    if (length > 1000000) {
+      console.warn('Max content length is very large, this may impact performance');
+    }
+  }
+  
+  /**
+   * 验证页面间延迟
+   */
+  private validateDelayBetweenPages(delay: number): void {
+    if (delay < 0) {
+      throw new Error('Delay between pages must be non-negative');
+    }
+    if (delay > 60000) {
+      console.warn('Delay between pages is very large: ' + delay + 'ms');
+    }
   }
 
   /**
@@ -236,6 +260,7 @@ export class ContentScraper {
    * 设置最大内容长度
    */
   setMaxContentLength(length: number): void {
+    this.validateMaxContentLength(length);
     this.maxContentLength = length;
   }
 
@@ -243,6 +268,7 @@ export class ContentScraper {
    * 设置页面间延迟
    */
   setDelayBetweenPages(delay: number): void {
+    this.validateDelayBetweenPages(delay);
     this.delayBetweenPages = delay;
   }
 
