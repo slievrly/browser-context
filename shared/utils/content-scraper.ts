@@ -159,9 +159,14 @@ export class ContentScraper {
    * 清理文本内容
    */
   private cleanText(text: string): string {
+    if (!text || typeof text !== 'string') {
+      return '';
+    }
+    
     return text
       .replace(/\s+/g, ' ') // 合并多个空白字符
       .replace(/\n\s*\n/g, '\n') // 合并多个换行
+      .replace(/[\u200B-\u200D\uFEFF]/g, '') // 移除零宽字符
       .trim();
   }
 
