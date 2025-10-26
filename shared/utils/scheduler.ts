@@ -131,6 +131,9 @@ export class Scheduler {
     const now = dayjs();
     const currentTime = now.format('HH:mm');
     const currentDay = now.day();
+    
+    // Parse start time components
+    const [startHour, startMinute] = this.config.startTime.split(':').map(Number);
 
     // 查找下一个允许的日期
     for (let i = 0; i < 7; i++) {
@@ -143,18 +146,10 @@ export class Scheduler {
           if (this.isTimeInRange(currentTime, this.config.startTime, this.config.endTime)) {
             return now;
           }
-          // 今天已过，检查明天
-          if (this.isTimeInRange(this.config.startTime, this.config.startTime, this.config.endTime)) {
-            return targetDate.hour(parseInt(this.config.startTime.split(':')[0]))
-                           .minute(parseInt(this.config.startTime.split(':')[1]))
-                           .second(0);
-          }
-        } else {
-          // 其他天
-          return targetDate.hour(parseInt(this.config.startTime.split(':')[0]))
-                          .minute(parseInt(this.config.startTime.split(':')[1]))
-                          .second(0);
         }
+        
+        // 返回指定日期的开始时间
+        return targetDate.hour(startHour).minute(startMinute).second(0);
       }
     }
 
