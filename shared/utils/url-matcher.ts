@@ -14,13 +14,34 @@ export class URLMatcher {
    * 更新黑名单模式
    */
   updatePatterns(patterns: string[]): void {
-    this.patterns = patterns;
+    if (!Array.isArray(patterns)) {
+      throw new Error('Patterns must be an array');
+    }
+    
+    // 过滤掉无效的模式
+    this.patterns = patterns.filter(pattern => {
+      if (typeof pattern !== 'string') {
+        console.warn(`Invalid pattern type: ${typeof pattern}`);
+        return false;
+      }
+      
+      const trimmed = pattern.trim();
+      if (trimmed.length === 0) {
+        return false;
+      }
+      
+      return true;
+    });
   }
 
   /**
    * 检查URL是否匹配黑名单
    */
   isBlacklisted(url: string): boolean {
+    if (!url || typeof url !== 'string') {
+      return false;
+    }
+    
     if (this.patterns.length === 0) {
       return false;
     }
