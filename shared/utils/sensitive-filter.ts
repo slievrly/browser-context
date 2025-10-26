@@ -16,8 +16,19 @@ export class SensitiveFilter {
    * 更新敏感信息模式
    */
   updatePatterns(patterns: string[]): void {
+    if (!Array.isArray(patterns)) {
+      throw new Error('Patterns must be an array');
+    }
+    
     this.patterns = patterns.map(pattern => {
+      if (typeof pattern !== 'string' || pattern.trim().length === 0) {
+        console.warn(`Invalid pattern: ${pattern}`);
+        return null;
+      }
+      
       try {
+        // 验证正则表达式是否有效
+        new RegExp(pattern, 'gi');
         return new RegExp(pattern, 'gi');
       } catch (error) {
         console.warn(`无效的正则表达式: ${pattern}`, error);
@@ -30,6 +41,9 @@ export class SensitiveFilter {
    * 设置替换文本
    */
   setReplacement(replacement: string): void {
+    if (typeof replacement !== 'string') {
+      throw new Error('Replacement must be a string');
+    }
     this.replacement = replacement;
   }
 
