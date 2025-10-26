@@ -1,12 +1,12 @@
 /**
- * Chrome扩展后台脚本
+ * Edge扩展后台脚本
  * 管理扩展的核心逻辑和存储
  */
 
 import { Scheduler } from '../shared/utils/scheduler';
 import { WebPageContent, ScrapingConfig, MemoryConfig, PluginState, ScrapingEvent } from '../shared/types';
 
-class ChromeBackgroundScript {
+class EdgeBackgroundScript {
   private scheduler: Scheduler | null = null;
   private state: PluginState;
   private memoryAdapter: any = null; // 将在后续实现
@@ -321,4 +321,4 @@ class ChromeBackgroundScript {
 }
 
 // 启动后台脚本
-new ChromeBackgroundScript();
+new EdgeBackgroundScript();
