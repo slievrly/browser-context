@@ -11,6 +11,7 @@ export interface WebPageContent {
     author?: string;
     publishedDate?: string;
     language?: string;
+    [key: string]: any; // 允许额外的元数据字段
   };
 }
 
