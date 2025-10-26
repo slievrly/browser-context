@@ -89,6 +89,9 @@ export abstract class BaseMemoryAdapter implements MemoryAdapter {
     if (typeof error === 'string') {
       return error;
     }
+    if (error && typeof error === 'object' && error.message) {
+      return String(error.message);
+    }
     return 'Unknown error occurred';
   }
 
