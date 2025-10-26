@@ -374,7 +374,18 @@ class PopupController {
    * 显示成功信息
    */
   private showSuccess(message: string): void {
-    // 简单的成功提示，可以后续优化
+    const errorDiv = document.getElementById('error-message');
+    if (errorDiv) {
+      errorDiv.textContent = message;
+      errorDiv.style.backgroundColor = '#4CAF50';
+      errorDiv.style.color = 'white';
+      errorDiv.style.display = 'block';
+      setTimeout(() => {
+        errorDiv.style.display = 'none';
+        errorDiv.style.backgroundColor = '#ffebee';
+        errorDiv.style.color = '#c62828';
+      }, 3000);
+    }
     console.log('Success:', message);
   }
 }
