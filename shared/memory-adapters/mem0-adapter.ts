@@ -211,21 +211,34 @@ export class Mem0Adapter extends BaseMemoryAdapter {
    * 格式化内容
    */
   private formatContent(content: WebPageContent): string {
-    let formatted = `Title: ${content.title}\n`;
-    formatted += `URL: ${content.url}\n`;
-    formatted += `Domain: ${content.domain}\n`;
-    formatted += `Content: ${content.content}\n`;
-    
-    if (content.metadata.description) {
-      formatted += `Description: ${content.metadata.description}\n`;
+    if (!content || typeof content !== 'object') {
+      throw new Error('Content must be a valid WebPageContent object');
     }
     
-    if (content.metadata.author) {
-      formatted += `Author: ${content.metadata.author}\n`;
-    }
+    let formatted = `Title: ${content.title || 'Untitled'}\n`;
+    formatted += `URL: ${content.url || 'Unknown'}\n`;
+    formatted += `Domain: ${content.domain || 'Unknown'}\n`;
+    formatted += `Content: ${content.content || 'No content'}\n`;
     
-    if (content.metadata.publishedDate) {
-      formatted += `Published: ${content.metadata.publishedDate}\n`;
+    if (content.metadata) {
+      if (content.metadata.description && content.metadata.description.trim()) {
+        formatted += `Description: ${content.metadata.description}\n`;
+      }
+      
+      if (content.metadata.author && content.metadata.author.trim()) {
+        formatted += `Author: ${content.metadata.author}\n`;
+      }
+      
+      if (content.metadata.publishedDate && content.metadata.publishedDate.trim()) {
+        formatted += `Published: ${content.metadata.publishedDate}\n`;
+      }
+      
+      if (content.metadata.keywords && Array.isArray(content.metadata.keywords)) {
+        const keywords = content.metadata.keywords.join(', ');
+        if (keywords.trim()) {
+          formatted += `Keywords: ${keywords}\n`;
+        }
+      }
     }
 
     return formatted;
