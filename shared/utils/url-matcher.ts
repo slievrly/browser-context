@@ -52,32 +52,37 @@ export class URLMatcher {
       const pathname = urlObj.pathname;
 
       return this.patterns.some(pattern => {
-        // 支持通配符匹配
-        if (pattern.includes('*')) {
-          const regexPattern = pattern
-            .replace(/\./g, '\\.')
-            .replace(/\*/g, '.*');
-          const regex = new RegExp(`^${regexPattern}$`, 'i');
-          return regex.test(domain) || regex.test(url);
-        }
+        try {
+          // 支持通配符匹配
+          if (pattern.includes('*')) {
+            const regexPattern = pattern
+              .replace(/\./g, '\\.')
+              .replace(/\*/g, '.*');
+            const regex = new RegExp(`^${regexPattern}$`, 'i');
+            return regex.test(domain) || regex.test(url);
+          }
 
-        // 精确匹配
-        if (pattern.startsWith('http')) {
+          // 精确匹配
+          if (pattern.startsWith('http')) {
+            return url.includes(pattern);
+          }
+
+          // 域名匹配
+          if (pattern.startsWith('.')) {
+            return domain.endsWith(pattern);
+          }
+
+          // 路径匹配
+          if (pattern.startsWith('/')) {
+            return pathname.startsWith(pattern);
+          }
+
+          // 包含匹配
           return url.includes(pattern);
+        } catch (error) {
+          console.warn(`Error matching pattern: ${pattern}`, error);
+          return false;
         }
-
-        // 域名匹配
-        if (pattern.startsWith('.')) {
-          return domain.endsWith(pattern);
-        }
-
-        // 路径匹配
-        if (pattern.startsWith('/')) {
-          return pathname.startsWith(pattern);
-        }
-
-        // 包含匹配
-        return url.includes(pattern);
       });
     } catch (error) {
       console.error('URL匹配错误:', error);
