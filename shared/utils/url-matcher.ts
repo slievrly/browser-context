@@ -94,11 +94,43 @@ export class URLMatcher {
    * 获取匹配的模式
    */
   getMatchingPattern(url: string): string | null {
-    for (const pattern of this.patterns) {
-      if (this.isBlacklisted(url)) {
-        return pattern;
-      }
+    if (!url || typeof url !== 'string') {
+      return null;
     }
+    
+    try {
+      const urlObj = new URL(url);
+      const domain = urlObj.hostname;
+      const pathname = urlObj.pathname;
+      
+      for (const pattern of this.patterns) {
+        try {
+          // 使用相同的匹配逻辑
+          if (pattern.includes('*')) {
+            const regexPattern = pattern
+              .replace(/\./g, '\\.')
+              .replace(/\*/g, '.*');
+            const regex = new RegExp(`^${regexPattern}$`, 'i');
+            if (regex.test(domain) || regex.test(url)) {
+              return pattern;
+            }
+          } else if (pattern.startsWith('http') && url.includes(pattern)) {
+            return pattern;
+          } else if (pattern.startsWith('.') && domain.endsWith(pattern)) {
+            return pattern;
+          } else if (pattern.startsWith('/') && pathname.startsWith(pattern)) {
+            return pattern;
+          } else if (url.includes(pattern)) {
+            return pattern;
+          }
+        } catch (error) {
+          console.warn(`Error checking pattern: ${pattern}`, error);
+        }
+      }
+    } catch (error) {
+      console.error('Error getting matching pattern:', error);
+    }
+    
     return null;
   }
 
