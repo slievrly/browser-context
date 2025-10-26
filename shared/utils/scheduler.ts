@@ -40,20 +40,27 @@ export class Scheduler {
     }
 
     this.isActive = true;
-    this.intervalId = window.setInterval(() => {
+    // Use global setTimeout for compatibility with service worker context
+    const setIntervalFn = typeof window !== 'undefined' ? window.setInterval : setInterval;
+    const setTimeoutFn = typeof window !== 'undefined' ? window.setTimeout : setTimeout;
+    
+    this.intervalId = setIntervalFn(() => {
       this.checkSchedule();
-    }, 60000); // 每分钟检查一次
+    }, 60000) as any; // 每分钟检查一次
 
     // 立即检查一次
-    this.checkSchedule();
+    setTimeoutFn(() => {
+      this.checkSchedule();
+    }, 0);
   }
 
   /**
    * 停止调度器
    */
   stop(): void {
-    if (this.intervalId) {
-      clearInterval(this.intervalId);
+    if (this.intervalId !== null) {
+      const clearIntervalFn = typeof window !== 'undefined' ? window.clearInterval : clearInterval;
+      clearIntervalFn(this.intervalId);
       this.intervalId = null;
     }
     this.isActive = false;
