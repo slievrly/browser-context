@@ -39,7 +39,12 @@ class PopupController {
    */
   private async loadState(): Promise<void> {
     return new Promise((resolve, reject) => {
+      const timeout = setTimeout(() => {
+        reject(new Error('Load state timeout'));
+      }, 5000);
+      
       chrome.runtime.sendMessage({ type: 'GET_STATE' }, (response) => {
+        clearTimeout(timeout);
         if (chrome.runtime.lastError) {
           reject(new Error(chrome.runtime.lastError.message));
           return;
