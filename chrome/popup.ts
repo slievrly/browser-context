@@ -333,7 +333,12 @@ class PopupController {
    */
   private async sendMessage(message: any): Promise<any> {
     return new Promise((resolve, reject) => {
+      const timeout = setTimeout(() => {
+        reject(new Error('Send message timeout after 10s'));
+      }, 10000);
+      
       chrome.runtime.sendMessage(message, (response) => {
+        clearTimeout(timeout);
         if (chrome.runtime.lastError) {
           reject(new Error(chrome.runtime.lastError.message));
           return;
