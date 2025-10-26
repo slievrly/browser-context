@@ -105,45 +105,54 @@ export class ContentScraper {
    * 提取主要内容
    */
   private extractMainContent(): string {
-    // 尝试多种选择器来获取主要内容
-    const contentSelectors = [
-      'main',
-      'article',
-      '[role="main"]',
-      '.content',
-      '.main-content',
-      '.post-content',
-      '.entry-content',
-      '#content',
-      '.container'
-    ];
+    try {
+      // 尝试多种选择器来获取主要内容
+      const contentSelectors = [
+        'main',
+        'article',
+        '[role="main"]',
+        '.content',
+        '.main-content',
+        '.post-content',
+        '.entry-content',
+        '#content',
+        '.container'
+      ];
 
-    let content = '';
-    
-    for (const selector of contentSelectors) {
-      const element = document.querySelector(selector);
-      if (element) {
-        content = this.cleanText(element.textContent || '');
-        if (content.length > 100) { // 如果内容足够长，使用它
-          break;
+      let content = '';
+      
+      for (const selector of contentSelectors) {
+        try {
+          const element = document.querySelector(selector);
+          if (element) {
+            content = this.cleanText(element.textContent || '');
+            if (content.length > 100) { // 如果内容足够长，使用它
+              break;
+            }
+          }
+        } catch (error) {
+          console.warn(`Error selecting ${selector}:`, error);
         }
       }
-    }
 
-    // 如果没有找到合适的内容，使用body
-    if (!content || content.length < 100) {
-      const body = document.body;
-      if (body) {
-        // 移除脚本和样式标签
-        const clone = body.cloneNode(true) as HTMLElement;
-        const scripts = clone.querySelectorAll('script, style, noscript');
-        scripts.forEach(el => el.remove());
-        
-        content = this.cleanText(clone.textContent || '');
+      // 如果没有找到合适的内容，使用body
+      if (!content || content.length < 100) {
+        const body = document.body;
+        if (body) {
+          // 移除脚本和样式标签
+          const clone = body.cloneNode(true) as HTMLElement;
+          const scripts = clone.querySelectorAll('script, style, noscript, iframe, object, embed');
+          scripts.forEach(el => el.remove());
+          
+          content = this.cleanText(clone.textContent || '');
+        }
       }
-    }
 
-    return content;
+      return content || '';
+    } catch (error) {
+      console.error('Error extracting main content:', error);
+      return '';
+    }
   }
 
   /**
