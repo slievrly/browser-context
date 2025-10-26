@@ -275,6 +275,16 @@ export class ContentScraper {
    * 从HTML字符串提取内容
    */
   static extractFromHTML(html: string, url: string): WebPageContent | null {
+    if (!html || typeof html !== 'string') {
+      console.error('Invalid HTML content');
+      return null;
+    }
+    
+    if (!url || typeof url !== 'string') {
+      console.error('Invalid URL');
+      return null;
+    }
+    
     try {
       const $ = ContentScraper.parseWithCheerio(html);
       
@@ -283,30 +293,69 @@ export class ContentScraper {
       
       const metadata: WebPageContent['metadata'] = {};
       
-      // 提取元数据
-      const description = $('meta[name="description"]').attr('content');
-      if (description) metadata.description = description;
+      try {
+        // 提取元数据
+        const description = $('meta[name="description"]').attr('content');
+        if (description && description.trim()) {
+          metadata.description = description.trim();
+        }
+      } catch (error) {
+        console.warn('Error extracting description from HTML:', error);
+      }
       
-      const keywords = $('meta[name="keywords"]').attr('content');
-      if (keywords) metadata.keywords = keywords.split(',').map(k => k.trim());
+      try {
+        const keywords = $('meta[name="keywords"]').attr('content');
+        if (keywords && keywords.trim()) {
+          metadata.keywords = keywords.split(',').map(k => k.trim()).filter(k => k.length > 0);
+        }
+      } catch (error) {
+        console.warn('Error extracting keywords from HTML:', error);
+      }
       
-      const author = $('meta[name="author"]').attr('content') || $('[rel="author"]').text();
-      if (author) metadata.author = author;
+      try {
+        const author = $('meta[name="author"]').attr('content') || $('[rel="author"]').text();
+        if (author && author.trim()) {
+          metadata.author = author.trim();
+        }
+      } catch (error) {
+        console.warn('Error extracting author from HTML:', error);
+      }
       
-      const publishedDate = $('meta[property="article:published_time"]').attr('content') || 
-                           $('time[datetime]').attr('datetime');
-      if (publishedDate) metadata.publishedDate = publishedDate;
+      try {
+        const publishedDate = $('meta[property="article:published_time"]').attr('content') || 
+                            $('meta[property="og:published_time"]').attr('content') ||
+                            $('time[datetime]').attr('datetime');
+        if (publishedDate && publishedDate.trim()) {
+          metadata.publishedDate = publishedDate.trim();
+        }
+      } catch (error) {
+        console.warn('Error extracting published date from HTML:', error);
+      }
       
-      const language = $('html').attr('lang') || 
-                      $('meta[http-equiv="content-language"]').attr('content');
-      if (language) metadata.language = language;
+      try {
+        const language = $('html').attr('lang') || 
+                        $('meta[http-equiv="content-language"]').attr('content');
+        if (language && language.trim()) {
+          metadata.language = language.trim();
+        }
+      } catch (error) {
+        console.warn('Error extracting language from HTML:', error);
+      }
+
+      // 提取域名
+      let domain = '';
+      try {
+        domain = new URL(url).hostname;
+      } catch (error) {
+        console.warn('Error extracting domain from URL:', error);
+      }
 
       return {
         url,
-        title,
+        title: title || 'Untitled',
         content: content.substring(0, 10000),
         timestamp: Date.now(),
-        domain: new URL(url).hostname,
+        domain,
         metadata
       };
     } catch (error) {
