@@ -176,37 +176,63 @@ export class ContentScraper {
   private extractMetadata(): WebPageContent['metadata'] {
     const metadata: WebPageContent['metadata'] = {};
 
-    // 描述
-    const description = document.querySelector('meta[name="description"]')?.getAttribute('content');
-    if (description) {
-      metadata.description = description;
-    }
+    try {
+      // 描述
+      try {
+        const description = document.querySelector('meta[name="description"]')?.getAttribute('content');
+        if (description && description.trim()) {
+          metadata.description = description.trim();
+        }
+      } catch (error) {
+        console.warn('Error extracting description:', error);
+      }
 
-    // 关键词
-    const keywords = document.querySelector('meta[name="keywords"]')?.getAttribute('content');
-    if (keywords) {
-      metadata.keywords = keywords.split(',').map(k => k.trim());
-    }
+      // 关键词
+      try {
+        const keywords = document.querySelector('meta[name="keywords"]')?.getAttribute('content');
+        if (keywords && keywords.trim()) {
+          metadata.keywords = keywords.split(',').map(k => k.trim()).filter(k => k.length > 0);
+        }
+      } catch (error) {
+        console.warn('Error extracting keywords:', error);
+      }
 
-    // 作者
-    const author = document.querySelector('meta[name="author"]')?.getAttribute('content') ||
-                  document.querySelector('[rel="author"]')?.textContent;
-    if (author) {
-      metadata.author = author;
-    }
+      // 作者
+      try {
+        const author = document.querySelector('meta[name="author"]')?.getAttribute('content') ||
+                      document.querySelector('[rel="author"]')?.textContent;
+        if (author && author.trim()) {
+          metadata.author = author.trim();
+        }
+      } catch (error) {
+        console.warn('Error extracting author:', error);
+      }
 
-    // 发布日期
-    const publishedDate = document.querySelector('meta[property="article:published_time"]')?.getAttribute('content') ||
-                         document.querySelector('time[datetime]')?.getAttribute('datetime');
-    if (publishedDate) {
-      metadata.publishedDate = publishedDate;
-    }
+      // 发布日期
+      try {
+        const publishedDate = document.querySelector('meta[property="article:published_time"]')?.getAttribute('content') ||
+                             document.querySelector('meta[property="og:published_time"]')?.getAttribute('content') ||
+                             document.querySelector('time[datetime]')?.getAttribute('datetime');
+        if (publishedDate && publishedDate.trim()) {
+          metadata.publishedDate = publishedDate.trim();
+        }
+      } catch (error) {
+        console.warn('Error extracting published date:', error);
+      }
 
-    // 语言
-    const language = document.documentElement.lang || 
-                    document.querySelector('meta[http-equiv="content-language"]')?.getAttribute('content');
-    if (language) {
-      metadata.language = language;
+      // 语言
+      try {
+        const language = document.documentElement?.lang || 
+                        document.querySelector('meta[http-equiv="content-language"]')?.getAttribute('content') ||
+                        document.querySelector('html')?.getAttribute('lang');
+        if (language && language.trim()) {
+          metadata.language = language.trim();
+        }
+      } catch (error) {
+        console.warn('Error extracting language:', error);
+      }
+    } catch (error) {
+      console.error('Error extracting metadata:', error);
     }
 
     return metadata;
