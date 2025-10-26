@@ -15,6 +15,12 @@ export class MemoryAdapterFactory {
    * 创建Memory适配器
    */
   static createAdapter(config: MemoryConfig): BaseMemoryAdapter {
+    // 验证配置
+    const validation = this.validateConfig(config);
+    if (!validation.valid) {
+      throw new Error(`Invalid configuration: ${validation.errors.join(', ')}`);
+    }
+    
     switch (config.provider) {
       case 'mem0':
         return new Mem0Adapter({
