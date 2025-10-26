@@ -1,5 +1,5 @@
 /**
- * Chrome扩展内容脚本
+ * Firefox扩展内容脚本
  * 在网页中注入并执行内容抓取功能
  */
 
@@ -8,7 +8,7 @@ import { URLMatcher } from '../shared/utils/url-matcher';
 import { SensitiveFilter } from '../shared/utils/sensitive-filter';
 import { WebPageContent, ScrapingConfig } from '../shared/types';
 
-class ChromeContentScript {
+class FirefoxContentScript {
   private scraper: ContentScraper;
   private urlMatcher: URLMatcher;
   private sensitiveFilter: SensitiveFilter;
@@ -233,4 +233,4 @@ class ChromeContentScript {
 }
 
 // 启动内容脚本
-new ChromeContentScript();
+new FirefoxContentScript();
