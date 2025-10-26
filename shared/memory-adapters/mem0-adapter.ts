@@ -187,8 +187,24 @@ export class Mem0Adapter extends BaseMemoryAdapter {
    * 生成唯一ID
    */
   private generateId(url: string): string {
-    // 使用URL的hash作为ID
-    return btoa(url).replace(/[^a-zA-Z0-9]/g, '');
+    if (!url || typeof url !== 'string') {
+      throw new Error('URL must be a non-empty string');
+    }
+    
+    try {
+      // 使用URL的hash作为ID
+      return btoa(url).replace(/[^a-zA-Z0-9]/g, '').substring(0, 100);
+    } catch (error) {
+      // 如果btoa失败，使用简单的hash
+      console.warn('btoa failed, using simple hash:', error);
+      let hash = 0;
+      for (let i = 0; i < url.length; i++) {
+        const char = url.charCodeAt(i);
+        hash = ((hash << 5) - hash) + char;
+        hash = hash & hash; // Convert to 32bit integer
+      }
+      return Math.abs(hash).toString(36);
+    }
   }
 
   /**
