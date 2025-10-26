@@ -248,27 +248,35 @@ export class Mem0Adapter extends BaseMemoryAdapter {
    * 解析搜索结果
    */
   private parseSearchResults(data: any): WebPageContent[] {
+    if (!data || typeof data !== 'object') {
+      console.warn('Invalid search results data');
+      return [];
+    }
+    
     if (!data.memories || !Array.isArray(data.memories)) {
+      console.warn('No memories array in search results');
       return [];
     }
 
-    return data.memories.map((memory: any) => {
-      const metadata = memory.metadata || {};
-      
-      return {
-        url: metadata.url || '',
-        title: metadata.title || '',
-        content: memory.content || '',
-        timestamp: metadata.timestamp || Date.now(),
-        domain: metadata.domain || '',
-        metadata: {
-          description: metadata.description,
-          keywords: metadata.keywords,
-          author: metadata.author,
-          publishedDate: metadata.publishedDate,
-          language: metadata.language
-        }
-      };
-    });
+    return data.memories
+      .filter((memory: any) => memory && typeof memory === 'object')
+      .map((memory: any) => {
+        const metadata = memory.metadata || {};
+        
+        return {
+          url: metadata.url || '',
+          title: metadata.title || '',
+          content: memory.content || '',
+          timestamp: metadata.timestamp || Date.now(),
+          domain: metadata.domain || '',
+          metadata: {
+            description: metadata.description,
+            keywords: Array.isArray(metadata.keywords) ? metadata.keywords : undefined,
+            author: metadata.author,
+            publishedDate: metadata.publishedDate,
+            language: metadata.language
+          }
+        };
+      });
   }
 }
