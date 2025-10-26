@@ -51,6 +51,10 @@ export class SensitiveFilter {
    * 过滤敏感信息
    */
   filter(content: string): string {
+    if (!content || typeof content !== 'string') {
+      return '';
+    }
+    
     if (this.patterns.length === 0) {
       return content;
     }
@@ -58,7 +62,11 @@ export class SensitiveFilter {
     let filteredContent = content;
 
     this.patterns.forEach(pattern => {
-      filteredContent = filteredContent.replace(pattern, this.replacement);
+      try {
+        filteredContent = filteredContent.replace(pattern, this.replacement);
+      } catch (error) {
+        console.warn('Error applying filter pattern:', error);
+      }
     });
 
     return filteredContent;
@@ -68,19 +76,38 @@ export class SensitiveFilter {
    * 检查内容是否包含敏感信息
    */
   hasSensitiveInfo(content: string): boolean {
-    return this.patterns.some(pattern => pattern.test(content));
+    if (!content || typeof content !== 'string') {
+      return false;
+    }
+    
+    return this.patterns.some(pattern => {
+      try {
+        return pattern.test(content);
+      } catch (error) {
+        console.warn('Error checking sensitive info:', error);
+        return false;
+      }
+    });
   }
 
   /**
    * 获取匹配的敏感信息
    */
   getSensitiveMatches(content: string): string[] {
+    if (!content || typeof content !== 'string') {
+      return [];
+    }
+    
     const matches: string[] = [];
     
     this.patterns.forEach(pattern => {
-      const patternMatches = content.match(pattern);
-      if (patternMatches) {
-        matches.push(...patternMatches);
+      try {
+        const patternMatches = content.match(pattern);
+        if (patternMatches) {
+          matches.push(...patternMatches);
+        }
+      } catch (error) {
+        console.warn('Error getting sensitive matches:', error);
       }
     });
 
