@@ -78,16 +78,20 @@ export class ContentScraper {
   /**
    * 等待页面完全加载
    */
-  private async waitForPageLoad(): Promise<void> {
-    return new Promise((resolve) => {
+  private async waitForPageLoad(timeout: number = 10000): Promise<void> {
+    return new Promise((resolve, reject) => {
       if (document.readyState === 'complete') {
         resolve();
         return;
       }
 
+      const startTime = Date.now();
       const checkReady = () => {
         if (document.readyState === 'complete') {
           resolve();
+        } else if (Date.now() - startTime > timeout) {
+          console.warn('Page load timeout after ' + timeout + 'ms');
+          resolve(); // 超时后继续执行，不阻断流程
         } else {
           setTimeout(checkReady, 100);
         }
