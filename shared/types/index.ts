@@ -38,6 +38,8 @@ export interface MemoryConfig {
   provider: 'mem0' | 'zep' | 'letta' | 'vector_db';
   endpoint: string;
   apiKey?: string;
+  timeout?: number; // 请求超时时间（毫秒）
+  retryCount?: number; // 重试次数
   options: {
     collection?: string;
     namespace?: string;
